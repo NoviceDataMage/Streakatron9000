@@ -19,37 +19,37 @@ def save(data):
     with open("C:/Users/Pako/Desktop/storage.json", "w") as file:
         json.dump(data, file)  
 
-def reset(name):
+def reset(*args):
     global streak_counter
     streak_counter = 0
 
-    data = {name: streak_counter}
+    data = {args[0]: streak_counter}
 
     save(data)
 
-    output_label.configure(text=str(streak_counter))
+    args[1].configure(text=str(streak_counter))
 
-def message_box(name):
+def message_box(*args):
     result = messagebox.askyesno(
         title='Reset',
         message='Are You Sure?'
     )
 
     if result:
-        reset(name)
+        reset(args[0], args[1])
 
     print(result)
 
-def streak(name):
+def streak_counter_func(*args):
     global streak_counter, flash_timer_id
     streak_counter += 1
 
-    data = {name: streak_counter}
+    data = {args[0]: streak_counter}
 
     with open("C:/Users/Pako/Desktop/storage.json", "w") as file:
         json.dump(data, file)  
 
-        output_label.configure(text=str(streak_counter))
+        args[1].configure(text=str(streak_counter))
     
     # Debouncer
     if flash_timer_id is not None:
@@ -77,10 +77,7 @@ def wisp_blink():
     root.after(1100, lambda: update_image(img_wisp_open))
 
 def add_streak(streak=None):
-    global streak_column
 
-    if not streak:
-        streak = streak_entry.get()
     if streak:
         streak_frame = ctk.CTkFrame(canvas, bg_color="#7d7d7d")
         streak_label = ctk.CTkLabel(streak_frame, text=f"{streak}", 
@@ -91,14 +88,15 @@ def add_streak(streak=None):
                                   bg_color="#2a3e5e", fg_color="#3c6cba")
         streak_number_label.pack(pady=10)
 
-        streak_add_button = ctk.CTkButton(streak_frame, text = 'WE CLIMB.', command = lambda: streak(f"{streak}"), font = cfont , 
+        streak_add_button = ctk.CTkButton(streak_frame, text = 'WE CLIMB.', command = lambda: streak_counter_func(f"{streak}", streak_number_label), font = cfont , 
                                           fg_color="black", hover_color = "gray")
         streak_add_button.pack(pady=12, padx=10)
 
-        streak_reset_button = ctk.CTkButton(streak_frame,text = 'Reset', command = lambda: message_box(f"{streak}") , font = cfont, fg_color="#5e5e5e", text_color = "Black", hover_color = "#7d7d7d")
+        streak_reset_button = ctk.CTkButton(streak_frame,text = 'Reset', command = lambda: message_box(f"{streak}", streak_number_label) , font = cfont, fg_color="#5e5e5e", text_color = "Black", hover_color = "#7d7d7d")
         streak_reset_button.pack(pady=12, padx=10)
 
         streak_frame.pack(side="left", padx=10)
+    
 
 def close_overlay(event, dim_overlay):
     dim_overlay.destroy()
@@ -115,7 +113,7 @@ def show_overlay(parent):
     streak_entry.pack(pady=10)
     
     add_streak_button = ctk.CTkButton(overlay, text="Add New Streak",
-                                      command=add_streak, 
+                                      command= lambda: add_streak(streak_entry.get()), 
                                       fg_color="#5e5e5e", text_color="Black", hover_color="#7d7d7d",
                                       font=("Obvia", 12))
     add_streak_button.pack(pady=5)
